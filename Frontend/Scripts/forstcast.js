@@ -1,3 +1,4 @@
+
 const apikey = "eec5dbfa71143678425241b7d1176985";
 
 document.getElementById("search").addEventListener("click", getData);
@@ -39,9 +40,12 @@ async function getFinalData(lat, lon, city) {
   displayData(finalData, city);
 }
 
+let defa 
+
 let savedata = document.getElementById("liveLocation")
 
 function displayData(finalData, city) {
+  defa = city
   document.querySelector("#data").innerHTML = null;
   savedata.innerHTML=null;
   savedata.innerHTML=`
@@ -89,6 +93,7 @@ function displayData(finalData, city) {
 // https://maps.google.com/maps?q=${city}&t=&z=13&ie=UTF8&iwloc=&output=embed
 
 function displayForecast(finalData) {
+    sessionStorage.setItem("weather",JSON.stringify(finalData))
   let forecast = document.querySelector("#forecast");
   forecast.innerHTML = null;
   var someDate = new Date();
@@ -156,7 +161,34 @@ let logout = document.getElementById("logout").addEventListener("click",()=>{
     sessionStorage.clear();
     window.location.href="index.html"
 })
+let token = sessionStorage.getItem("Access_Token")
 
 async function saveforcast(){
-    console.log("hi")
+   try {
+    let res = await fetch("https://alphabin-technology-backend.onrender.com/gethistory",{
+        method : "GET",
+        headers : {
+            "Authorization" : `${token}`
+        }
+    })
+    let out = await res.json();
+    let array = out[0].history;
+    let data = JSON.parse(sessionStorage.getItem("weather"));
+    array.push(data);
+    let update = await fetch("https://alphabin-technology-backend.onrender.com/update",{
+        method : "PATCH",
+        headers : {
+            "Content-Type" : "application/json",
+            "Authorization" : `${token}`
+        },
+        body : JSON.stringify({history:array})
+    })
+    if(update.ok){
+        alert("Saved to history")
+    }else{
+        alert("Something went wrong")
+    }
+   } catch (error) {
+    console.log(error)
+   }
 }
