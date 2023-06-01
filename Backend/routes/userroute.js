@@ -56,7 +56,7 @@ userRoute.post("/login",logger,async(req,res)=>{
                 if(result){
                     const token = jwt.sign({userid:user[0]._id},process.env.KEY);
                     const {_id,username,email,avatar,password} = user[0]
-                    res.status(200).send({"msg":"Login Successfull","Access_Token":token,"username":username,"email":email,"avatar":avatar})
+                    res.status(200).send({"msg":"Login Successfull","Access_Token":token,"username":username,"email":email})
                 }else{
                     res.status(401).send("Wrong Password")
                 }
@@ -66,6 +66,21 @@ userRoute.post("/login",logger,async(req,res)=>{
         }
     } catch (error) {
         res.status(400).send("Wrong crenditials")
+    }
+})
+
+
+// get history
+
+userRoute.get("/gethistory",logger,async(req,res)=>{
+    try {
+        const token = req.headers.authorization;
+        const decoded = jwt.verify(token,process.env.KEY);
+        const userid = decoded.userid;
+        let user_data = await UserModel.find({_id:userid});
+        res.status(200).send(user_data.history)
+    } catch (error) {
+        res.status(400).send("Something went wrong")
     }
 })
 
@@ -105,7 +120,7 @@ userRoute.patch("/update",logger,async(req,res)=>{
 
 /// Admin to get all users
 
-// for admin to get all the users ----->localhost:6060/user/admin/allusers/
+// for admin to get all the users ----->localhost:5050/user/admin/allusers/
 userRoute.get("/admin/allusers",logger,async(req,res)=>{
     try {
         let allusers = await UserModel.find();
@@ -115,7 +130,7 @@ userRoute.get("/admin/allusers",logger,async(req,res)=>{
     }
 })
 
-//admin can delete the user ----->localhost:6060/user/admin/delete/:userid
+//admin can delete the user ----->localhost:5050/user/admin/delete/:userid
 userRoute.delete("/admin/delete/:userid",logger,async(req,res)=>{
     try {
         await UserModel.findByIdAndUpdate({_id:req.params.userid});
