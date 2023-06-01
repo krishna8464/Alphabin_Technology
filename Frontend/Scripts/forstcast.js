@@ -158,5 +158,5 @@ let logout = document.getElementById("logout").addEventListener("click",()=>{
 })
 
 async function saveforcast(){
-    
+    console.log("hi")
 }
